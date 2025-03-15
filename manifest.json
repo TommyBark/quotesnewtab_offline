@@ -2,8 +2,8 @@
   	"name": "Quotes New Tab",
     "author": "Emil Carlsson",
   	"description": "A new motivational quote in every new tab.",
-  	"version": "2.0.0",
-  	"manifest_version": 2,
+  	"version": "3.0.0",
+  	"manifest_version": 3,
   	"permissions" : [
       "management",
       "topSites"
