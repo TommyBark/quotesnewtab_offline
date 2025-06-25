@@ -37,7 +37,7 @@ Quotes New Tab is a Chrome extension that replaces your new tab with a minimalis
 * Customizable interface.
 * Available in offline.
 * Quick links to most visited sites.
-* Share your favorite quotes on Facebook and Twitter.
+* Fully offline - no external API calls or social sharing.
 * Over 500 handpicked and submitted quotes, [browse all here](https://quotesnewtab.com/quotes).
 
 [**Read more on our website »**](https://quotesnewtab.com/)
