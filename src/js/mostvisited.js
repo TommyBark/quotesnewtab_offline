@@ -16,24 +16,11 @@ function buildPopupDom(mostVisitedURLs) {
     var link = mostVisitedURLs[i].url;
     var title = mostVisitedURLs[i].title;
     
-    // Check if logotype exists for the page
-    if (availableLogotypes.indexOf(rootDomain(link)) !== -1) {
-      $('#top-sites').append(
-          '<a href="'+link+'" class="site">' +
-            '<div class="logo" style="background-image: url(\'https://s3.eu-central-1.amazonaws.com/quotesnewtab/logotypes/'+rootDomain(link)+'.jpg\'"><span></span></div>' +
-            '<p class="site-name">'+textTruncate(title)+'</p>' + 
-          '</a>'
-      );
-
-      // Show the root domains first letter if logotype does not exist
-    } else {
-      $('#top-sites').append(
-          '<a href="'+link+'" class="site">' +
-            '<div class="logo"><span>' + rootDomain(link).substring(0, 1) + '</span></div>' +
-            '<p class="site-name">'+textTruncate(title)+'</p>' + 
-          '</a>'
-      );
-    }
+    // Always use the local fallback instead of external logos
+    $('#top-sites').append('<a href="' + link + '" class="site">' +
+      '<div class="logo"><span>' + rootDomain(link).substring(0, 1) + '</span></div>' +
+      '<p class="site-name">' + textTruncate(title) + '</p>' +
+      '</a>');
   }
 }
 

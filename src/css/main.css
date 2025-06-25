@@ -401,9 +401,9 @@ button span, .info-btn span, .share-btn span {
 
 /* line 1, C:/Users/e605239/Dropbox/Web/New Tabs/Quotes New Tab 1.0/css/scss/base/_offline.scss */
 #offline-notice {
-  display: none;
+  display: block;
   font-size: 16px;
-  opacity: 0;
+  opacity: 1;
   position: absolute;
   text-align: center;
   transition: opacity 0.25s ease;

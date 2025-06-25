@@ -71,14 +71,7 @@ $(document).ready(function() {
         $("#quote-wrapper").toggleClass("top-sites-active");
     });
 
-    /**
-     * Share on Facebook popup
-     */
-    $("#facebook").click(function(e) {
-        e.preventDefault();
-        window.open($(this).attr('href'), 'fbShareWindow', 'height=450, width=550, top=' + ($(window).height() / 2 - 275) + ', left=' + ($(window).width() / 2 - 225) + ', toolbar=0, location=0, menubar=0, directories=0, scrollbars=0');
-        return false;
-    });
+    // Facebook sharing functionality removed
 
 
     //------------------------//
@@ -198,42 +191,46 @@ function populateDropdowns() {
  * Checking settings stored in Local Storage
  */
 function checkSettings() {
-    // Get stored settings
-    var storedSettings = localStorage.getItem("settings");
+    var settings = localStorage.getItem("settings");
 
-    // If stored settings does not exist – Most likely first time use
-    if (!storedSettings) {
-        // Store default settings in Local Storage
-        storeSettings(defaultSettings);
-
-        // Get stored settings again
-        storedSettings = localStorage.getItem("settings");
+    // If settings do not exist, create them
+    if(!settings) {
+        // Create a copy of defaultSettings to avoid const issues
+        var defaultCopy = {
+            quoteFont: defaultSettings.quoteFont,
+            authorFont: defaultSettings.authorFont,
+            alwaysShowTopSites: defaultSettings.alwaysShowTopSites,
+            showBackgroundImage: defaultSettings.showBackgroundImage,
+            autoRefreshQuote: defaultSettings.autoRefreshQuote,
+            backgroundColor: defaultSettings.backgroundColor,
+            fontColor: defaultSettings.fontColor
+        };
+        storeSettings(defaultCopy);
+        settings = localStorage.getItem("settings");
     }
 
-    // If stored settings exist
-    if (storedSettings) {
-        storedSettings = JSON.parse(storedSettings);
+    // If settings exist, apply them
+    if(settings) {
+        settings = JSON.parse(settings);
 
-        // Quote Font
-        setFont(storedSettings.quoteFont, "quote");
-        $("#quote-font-select").val(storedSettings.quoteFont);
+        // Set fonts
+        setFont(settings.quoteFont, "quote");
+        $("#quote-font-select").val(settings.quoteFont);
+        setFont(settings.authorFont, "author");
+        $("#author-font-select").val(settings.authorFont);
 
-        // Author Font
-        setFont(storedSettings.authorFont, "author");
-        $("#author-font-select").val(storedSettings.authorFont);
-
-        // Background Color
-        document.documentElement.style.setProperty('--background-color', storedSettings.backgroundColor);
+        // Set Background color
+        document.documentElement.style.setProperty('--background-color', settings.backgroundColor);
         $("#background-color-list .color").removeClass("selected");
-        $("#background-color-list .color[data-color='"+storedSettings.backgroundColor+"']").addClass("selected");
+        $("#background-color-list .color[data-color='" + settings.backgroundColor + "']").addClass("selected");
 
-        // Font color
-        document.documentElement.style.setProperty('--font-color', storedSettings.fontColor);
+        // Set font color
+        document.documentElement.style.setProperty('--font-color', settings.fontColor);
         $("#font-color-list .color").removeClass("selected");
-        $("#font-color-list .color[data-color='"+storedSettings.fontColor+"']").addClass("selected");
+        $("#font-color-list .color[data-color='" + settings.fontColor + "']").addClass("selected");
 
-        // Always show top sites
-        if (storedSettings.alwaysShowTopSites === true) {
+        // Enable "Always show top sites" toggle
+        if(settings.alwaysShowTopSites === true) {
             $("#quote-wrapper").toggleClass("top-sites-active");
             setTimeout(function() {
                 $("#top-sites").toggleClass("active");
@@ -242,20 +239,20 @@ function checkSettings() {
             $("#top-sites-toggle").prop("checked", true);
         }
 
-        // Show background image
-        if (storedSettings.showBackgroundImage === false) {
+        // Handle background image toggle
+        if(settings.showBackgroundImage === false) {
             $("#background-image").removeClass("show");
             $("#background-toggle").prop("checked", false);
         } else {
             $("#background-image-loader").on("load", function() {
-                var src = $("#background-image-loader").attr("src");
-                $("#background-image").css("background-image", "url("+src+")");
+                var backgroundImageUrl = $("#background-image-loader").attr("src");
+                $("#background-image").css("background-image", "url(" + backgroundImageUrl + ")");
                 $("#background-image").css("opacity", "0.25");
             });
         }
 
-        // Auto-refresh a new quote
-        if (storedSettings.autoRefreshQuote === true) {
+        // Handle auto-refresh toggle
+        if(settings.autoRefreshQuote === true) {
             $("#auto-refresh-quote-toggle").prop("checked", true);
         } else {
             $("#auto-refresh-quote-toggle").prop("checked", false);
@@ -264,21 +261,26 @@ function checkSettings() {
 }
 
 /**
- * Storing settings in Local Storage
- * @param {Object} defaultSettings - The default settings (Defined in checkSettings())
+ * Store settings in Local Storage
  */
 function storeSettings(defaultSettingsObject) {
-    //defaultSettings = defaultSettingsObject || new Object({});
+    // Create a proper copy to avoid const reference issues
+    var settingsToUse = {};
+    if (defaultSettingsObject) {
+        settingsToUse = JSON.parse(JSON.stringify(defaultSettingsObject));
+    }
 
-    quoteFont = defaultSettings.quoteFont || $("#quote-font-select option:selected").val();
-    authorFont = defaultSettings.authorFont || $("#author-font-select option:selected").val();
-    alwaysShowTopSites = defaultSettings.alwaysShowTopSites || $("#top-sites-toggle").is(":checked");
-    showBackgroundImage = defaultSettings.showBackgroundImage || $("#background-toggle").is(":checked");
-    autoRefreshQuote = defaultSettings.autoRefreshQuote || $("#auto-refresh-quote-toggle").is(":checked");
-    backgroundColor = defaultSettings.backgroundColor || $("#background-color-list").find(".selected").attr("data-color");
-    fontColor = defaultSettings.fontColor || $("#font-color-list").find(".selected").attr("data-color");
-    
-    var data = {
+    // Get values from form
+    var quoteFont = settingsToUse.quoteFont || $("#quote-font-select option:selected").val();
+    var authorFont = settingsToUse.authorFont || $("#author-font-select option:selected").val();
+    var alwaysShowTopSites = settingsToUse.alwaysShowTopSites || $("#top-sites-toggle").is(":checked");
+    var showBackgroundImage = settingsToUse.showBackgroundImage || $("#background-toggle").is(":checked");
+    var autoRefreshQuote = settingsToUse.autoRefreshQuote || $("#auto-refresh-quote-toggle").is(":checked");
+    var backgroundColor = settingsToUse.backgroundColor || $("#background-color-list").find(".selected").attr("data-color");
+    var fontColor = settingsToUse.fontColor || $("#font-color-list").find(".selected").attr("data-color");
+
+    // Save them to the settings object
+    var settings = {
         quoteFont: quoteFont,
         authorFont: authorFont,
         alwaysShowTopSites: alwaysShowTopSites,
@@ -287,95 +289,58 @@ function storeSettings(defaultSettingsObject) {
         backgroundColor: backgroundColor,
         fontColor: fontColor
     };
-    
-    localStorage.setItem("settings", JSON.stringify(data));
+
+    // Store in local storage
+    localStorage.setItem("settings", JSON.stringify(settings));
 }
 
 /**
- * Fetching quote data from API
+ * Fetching quote data - always offline now
  */
 function fetchQuote() {
-    // Checking if internet connection exists
-    if (navigator.onLine) {
-        $.ajax({
-            url: "https://api.quotesnewtab.com/v1/quotes/random",
-            dataType: 'json',
-            success: function (result) {
-                // Set HTML-text for quote and author
-                $("#quote").html(result.quote);
-                $("#author").html(result.author);
-                setTimeout(function() {
-                    $("#quote, #author").css("opacity", "1");
-                }, 250);
-
-                // Show suggestor if there is one
-                if (result.submitter !== undefined) {
-                    $("#suggestor").html("Quote submitted by " + result.submitter);
-                    setTimeout(function() {
-                        $("#suggestor").css("opacity", "1");
-                    }, 250);
-                }
-
-                // Fetch image of author
-                $("#background-image-loader").attr("src", "https://quotesnewtab.com/assets/authors/"+convertAuthorName(result.author)+".jpg");
-
-                // Generate twitter intent URL
-                $("#twitter").attr("href", "https://twitter.com/intent/tweet?text=" + encodeURIComponent('"' + result.quote + '" – ' + result.author) + "&via=QuotesNewTab");
-
-                // Generate facebook share URL
-                $("#facebook").attr("href", "https://www.facebook.com/dialog/share?app_id=1796316614011305&display=popup&href=https://chrome.google.com/webstore/detail/quotes-new-tab/fnhpicigolcacikdjdocmkfnplmefadg&quote=" + encodeURIComponent('"' + result.quote + '" – ' + result.author));
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                fetchOfflineQuote();
-            }
-        });
-    } else {
-        fetchOfflineQuote();
-    }
+    fetchOfflineQuote();
 }
 
 /**
- * Fetching quote from locally stored Array with quotes and images if there is no internet connection
+ * Fetching quote from locally stored Array with quotes and images
  */
 function fetchOfflineQuote() {
-    var randomQuote = offlineQuotes[Math.floor(Math.random() * offlineQuotes.length)];
+    // Pick a random quote from the locally stored array
+    var quote = offlineQuotes[Math.floor(Math.random() * offlineQuotes.length)];
 
-    // Set HTML-text for quote and author
-    $("#quote").html(randomQuote.quote);
-    $("#author").html(randomQuote.author);
+    // Set the quote and author
+    $("#quote").html(quote.quote);
+    $("#author").html(quote.author);
+
+    // Show the quote with a fade-in effect
     setTimeout(function() {
         $("#quote, #author").css("opacity", "1");
     }, 250);
 
     // Fetch image of author
-    $("#background-image-loader").attr("src", "../images/offline/"+convertAuthorName(randomQuote.author)+".jpg");
+    $("#background-image-loader").attr("src", "../images/offline/" + convertAuthorName(quote.author) + ".jpg");
 
-    // Hide share buttons
-    $(".share").addClass("hide");
-
-    // Show offline notice text if offline
-    if (!navigator.onLine) {
-        $("#offline-notice").addClass("show");
-    }
+    // Show offline notice
+    $("#offline-notice").addClass("show");
 }
 
 /**
- * Wait for image to finish loading before showing
+ * Show background image when it's loaded
  */
 function showBackgroundWhenLoaded() {
     $("#background-image-loader").one("load", function() {
-        var src = $("#background-image-loader").attr("src");
-        $("#background-image").css("background-image", "url("+src+")");
+        var backgroundImageUrl = $("#background-image-loader").attr("src");
+        $("#background-image").css("background-image", "url(" + backgroundImageUrl + ")");
         $("#background-image").css("opacity", "0.25");
     }).each(function() {
-        if(this.complete) $(this).load();
+        if(this.complete) {
+            $(this).load();
+        }
     });
 }
 
 /**
- * Dynamically load the chosen font in settings, removing the need to load all fonts on page load
- * @param {string} font - The font to load
- * @param {string} context - The context where the font should be set
+ * Load font from external source
  */
 function loadFont(font, context) {
     WebFont.load({
@@ -383,11 +348,10 @@ function loadFont(font, context) {
             families: [font]
         },
         classes: false,
-        // Wait for font to load before setting
         active: function() {
-            if (context === "quote") {
+            if(context === "quote") {
                 document.documentElement.style.setProperty('--quote-font', font);
-            } else if (context === "author") {
+            } else if(context === "author") {
                 document.documentElement.style.setProperty('--author-font', font);
             }
         }
@@ -395,53 +359,48 @@ function loadFont(font, context) {
 }
 
 /**
- * Setting the desired font
- * @param {string} font - Font to set to
- * @param {[type]} context - The context where the font should be set
+ * Set font for specific contexts
  */
 function setFont(font, context) {
-    // Check first if font is not a default font, in which case it needs to be loaded
-    if (defaultFonts.indexOf(font) === -1) {
+    // Check if font is one of the default fonts
+    // If so, set it directly instead of loading it from Google Fonts
+    if(defaultFonts.indexOf(font) !== -1) {
+        if(context === "quote") {
+            document.documentElement.style.setProperty('--quote-font', font);
+        } else if(context === "author") {
+            document.documentElement.style.setProperty('--author-font', font);
+        }
+    } else {
         loadFont(font, context);
-        return;
-    }
-
-    if (context === "quote") {
-        document.documentElement.style.setProperty('--quote-font', font);
-    } else if (context === "author") {
-        document.documentElement.style.setProperty('--author-font', font);
     }
 }
 
 /**
- * Convert author name to match URL call for image
- * @param {string} author - The author's name
- * @return {string} - The converted name
+ * Convert author name to use as filename
  */
 function convertAuthorName(author) {
-    return author.toLowerCase().replace(/\s+/g, "-").replace(/[, .]+/g, "");
+    return author.toLowerCase().replace(/ /g, "-").replace(/[, .]+/g, "");
 }
 
 /**
- * Clicking outside popup functionality
- * @param {event} e
+ * Click-away popup functionality
  */
-$(document).mouseup(function (e) {
-    var info = $("#info-popup");
-    var infoButton = $("#info-btn");
-    var settings = $("#settings-popup");
-    var settingsButton = $("#settings-btn");
+$(document).mouseup(function(e) {
+    var infoPopup = $("#info-popup");
+    var infoBtn = $("#info-btn");
+    var settingsPopup = $("#settings-popup");
+    var settingsBtn = $("#settings-btn");
 
-    if (!info.is(e.target) && !infoButton.is(e.target) && info.has(e.target).length === 0 && infoButton.has(e.target).length === 0)
-    {
-        info.removeClass("active");
-        infoButton.removeClass("active");
+    // Info popup
+    if (!infoPopup.is(e.target) && !infoBtn.is(e.target) && infoPopup.has(e.target).length === 0 && infoBtn.has(e.target).length === 0) {
+        infoPopup.removeClass("active");
+        infoBtn.removeClass("active");
     }
 
-    if (!settings.is(e.target) && !settingsButton.is(e.target) && settings.has(e.target).length === 0 && settingsButton.has(e.target).length === 0)
-    {
-        settings.removeClass("active");
-        settingsButton.removeClass("active");
+    // Settings popup
+    if (!settingsPopup.is(e.target) && !settingsBtn.is(e.target) && settingsPopup.has(e.target).length === 0 && settingsBtn.has(e.target).length === 0) {
+        settingsPopup.removeClass("active");
+        settingsBtn.removeClass("active");
     }
 });
 
