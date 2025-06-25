@@ -1,3 +1,8 @@
+
+## THIS IS A FORK OF https://github.com/quotesnewtab/quotesnewtab that removes all API connections and sharing, making it completely offline.
+
+**New quotes need to be added to `src/js/constants.js`**
+
 <p align="center">
   <a href="https://quotesnewtab.com/">
     <img src="https://quotesnewtab.com/assets/brand/logo-purple.svg" alt="Quotes New Tab logo" width="72" height="72">
